@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace SearchEngineWinForms
 {
@@ -12,16 +10,16 @@ namespace SearchEngineWinForms
 	/// Реализует shunting-yard для преобразования в постфиксную запись.</summary>
 	internal sealed class QueryParser
 	{
-		private static readonly Regex _tokenRegex = new(@"\s*(\()|(\))|AND\b|OR\b|NOT\b|[\p{L}\p{Nd}]{2,}", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+		private static readonly Regex TokenRegex = new(@"\s*(\()|(\))|AND\b|OR\b|NOT\b|[\p{L}\p{Nd}]{2,}", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-		private static readonly Dictionary<string, TokenType> _keywords = new(StringComparer.OrdinalIgnoreCase)
+		private static readonly Dictionary<string, TokenType> Keywords = new(StringComparer.OrdinalIgnoreCase)
 		{
 			["AND"] = TokenType.And,
 			["OR"] = TokenType.Or,
 			["NOT"] = TokenType.Not
 		};
 
-		private static readonly Dictionary<TokenType, int> _precedence = new()
+		private static readonly Dictionary<TokenType, int> Precedence = new()
 		{
 			[TokenType.Not] = 3,
 			[TokenType.And] = 2,
@@ -33,12 +31,12 @@ namespace SearchEngineWinForms
 			var output = new List<Token>();
 			var ops = new Stack<Token>();
 
-			foreach (Match m in _tokenRegex.Matches(input))
+			foreach (Match m in TokenRegex.Matches(input))
 			{
 				string lexeme = m.Value.Trim();
 				if (lexeme.Length == 0) continue;
 
-				if (_keywords.TryGetValue(lexeme, out var kw))
+				if (Keywords.TryGetValue(lexeme, out var kw))
 				{
 					if (kw == TokenType.Not)
 					{
@@ -49,7 +47,7 @@ namespace SearchEngineWinForms
 					{
 						while (ops.Count > 0 &&
 							   ops.Peek().Type != TokenType.LParen &&
-							   _precedence[ops.Peek().Type] >= _precedence[kw])
+							   Precedence[ops.Peek().Type] >= Precedence[kw])
 						{
 							output.Add(ops.Pop());
 						}
@@ -86,8 +84,5 @@ namespace SearchEngineWinForms
 		}
 	}
 
-	public sealed class QuerySyntaxException : Exception
-	{
-		public QuerySyntaxException(string message) : base(message) { }
-	}
+	public sealed class QuerySyntaxException(string message) : Exception(message);
 }

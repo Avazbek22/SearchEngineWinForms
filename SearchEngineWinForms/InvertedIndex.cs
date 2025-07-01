@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
+﻿
 namespace SearchEngineWinForms
 {
 	/// <summary>Инвертированный индекс: term → список ID документов.</summary>
@@ -35,10 +33,7 @@ namespace SearchEngineWinForms
 			}
 		}
 
-		public IReadOnlyCollection<int> GetPostingList(string term) =>
-			_index.TryGetValue(term.ToLowerInvariant(), out var set)
-				? set
-				: Array.Empty<int>();
+		public IReadOnlyCollection<int> GetPostingList(string term) => _index.TryGetValue(term.ToLowerInvariant(), out var set) ? set : Array.Empty<int>();
 
 		public string GetDocumentPath(int id) => _documents[id].Path;
 	}
